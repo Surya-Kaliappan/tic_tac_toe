@@ -10,7 +10,7 @@ let iWantToPlayAgain = false;
 let opponentWantsToPlayAgain = false;
 let amIHost = false;
 let opponentName = '';
-let gameIsOver = false; // New flag to prevent multiple end-game triggers
+let gameIsOver = false;
 
 const winningCombinations = [
     [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -52,7 +52,7 @@ elements.playAgainBtn.onclick = () => {
 function quitGame() {
     if (conn) conn.close();
     if (peer) peer.destroy();
-
+    
     boardState = ['', '', '', '', '', '', '', '', ''];
     iWantToPlayAgain = false;
     opponentWantsToPlayAgain = false;
@@ -65,7 +65,7 @@ function quitGame() {
     resetUI();
     renderBoard(boardState, null);
     showScreen('lobby');
-
+    
     elements.roomCodeInput.value = '';
     elements.roomCodeInput.readOnly = false;
     elements.startGameBtn.textContent = 'Start Game';
@@ -101,7 +101,7 @@ function createNewGame() {
             startNewGame(amIHost);
         });
         conn.on('data', handleData);
-        conn.on('close', () => endGame("Opponent has disconnected."));
+        conn.on('close', () => endGame("Opponent has disconnected.", [], true)); // Pass true for host disconnect
     });
 }
 
@@ -114,7 +114,7 @@ function joinGame(roomCode) {
         elements.roomIdDisplay.textContent = `Room ID: ${roomCode}`;
         conn.on('open', () => console.log("Connection open, waiting for host."));
         conn.on('data', handleData);
-        conn.on('close', () => endGame("Opponent has disconnected."));
+        conn.on('close', () => endGame("Opponent has disconnected.", [], true)); // Pass true for host disconnect
     });
 }
 
@@ -142,13 +142,17 @@ function handleCellClick(index) {
     myTurn = false;
     
     checkGameOver();
-    updateStatus();
+    if (!gameIsOver) {
+        updateStatus();
+    }
 }
 
 function handleData(data) {
     switch (data.type) {
         case 'start':
-            startNewGame(amIHost); // Ensure joiner also resets fully
+            if (!amIHost) {
+                startNewGame(amIHost);
+            }
             initializeGame(data.symbol, data.startTurn, data.opponentName);
             break;
         case 'move':
@@ -156,12 +160,19 @@ function handleData(data) {
             renderBoard(boardState, handleCellClick);
             myTurn = true;
             checkGameOver();
-            updateStatus();
+            if (!gameIsOver) {
+                updateStatus();
+            }
             break;
         case 'play-again':
             opponentWantsToPlayAgain = true;
-            if (iWantToPlayAgain && amIHost) {
-                startNewGame(amIHost);
+            if (iWantToPlayAgain) {
+                if (amIHost) {
+                    startNewGame(amIHost);
+                    conn.send({ type: 'restart' });
+                }
+            } else {
+                showOpponentReady();
             }
             break;
         case 'restart':
@@ -194,14 +205,14 @@ function checkGameOver() {
     return false;
 }
 
-function endGame(message, combination = []) {
+function endGame(message, combination = [], isDisconnect = false) {
     if (gameIsOver) return;
     
     gameIsOver = true;
     myTurn = false;
     
-    // The modal is shown first, which clones the board. Then highlight.
-    showEndGameModal(message);
+    // Pass the disconnect flag to the UI function
+    showEndGameModal(message, isDisconnect); 
     if (combination.length > 0) {
         highlightWinningCells(combination);
     }

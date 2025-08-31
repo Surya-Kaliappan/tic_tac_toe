@@ -29,6 +29,7 @@ const elements = {
     confirmYesBtn: document.getElementById('confirm-yes-btn'),
     confirmNoBtn: document.getElementById('confirm-no-btn'),
     finalBoardClone: document.getElementById('final-board-clone'),
+    gameStatus: document.getElementById('game-status'),
 };
 
 function showScreen(screenName) {
@@ -62,10 +63,17 @@ function renderBoard(boardState, clickHandler) {
     });
 }
 
-function showEndGameModal(message) {
-    elements.gameResultText.textContent = message;
+function showEndGameModal(message, isHostDisconnected = false) {
+    elements.gameResultText.innerHTML = message;
     elements.finalBoardClone.innerHTML = elements.gameBoard.innerHTML;
     elements.gameBoard.style.display = 'none';
+
+    if (isHostDisconnected) {
+        elements.playAgainBtn.style.display = 'none';
+    } else {
+        elements.playAgainBtn.style.display = 'block';
+    }
+
     elements.endGameModalOverlay.classList.remove('hidden');
 }
 
@@ -94,11 +102,13 @@ function resetUI() {
 
 function highlightWinningCells(combination) {
     combination.forEach(index => {
-        // Highlight the main board
         elements.gameBoard.children[index].classList.add('winning-cell');
-        // Ensure the clone exists before trying to highlight it
         if (elements.finalBoardClone.children.length) {
             elements.finalBoardClone.children[index].classList.add('winning-cell');
         }
     });
+}
+
+function showOpponentReady() {
+    elements.gameResultText.innerHTML += "<br><span class='opponent-ready-text'>Opponent is ready!</span>";
 }
