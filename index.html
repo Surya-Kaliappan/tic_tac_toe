@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Peer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="name-screen" class="screen active">
+        <h1>Tic-Tac-Peer</h1>
+        <input type="text" id="username-input" placeholder="Enter your name">
+        <button id="enter-lobby-btn">Enter</button>
+    </div>
+
+    <div id="lobby-screen" class="screen">
+        <h2>Welcome, <span id="welcome-username"></span>!</h2>
+        <input type="text" id="room-code-input" placeholder="Enter Room Code to Join">
+        <button id="start-game-btn">Start Game</button>
+        <p>Leave the box empty and click "Start Game" to create a new room.</p>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <div id="game-status">Game Starting...</div>
+        <div id="game-board">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
+        <button id="play-again-btn" style="display: none;">Play Again</button>
+    </div>
+    <script src="peer.min.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

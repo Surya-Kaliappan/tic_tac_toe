@@ -1,0 +1,62 @@
+body {
+    font-family: sans-serif;
+    text-align: center;
+    background-color: #f0f0f0;
+}
+
+.screen {
+    display: none; /* Hide all screens by default */
+    padding: 20px;
+}
+
+.screen.active {
+    display: block; /* Show only the active screen */
+}
+
+input {
+    padding: 10px;
+    margin: 10px;
+    width: 200px;
+}
+
+button {
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+/* --- GAME BOARD STYLES --- */
+#game-board {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.cell {
+    width: 100px;
+    height: 100px;
+    border: 2px solid #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 4rem;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Remove borders to create the grid effect */
+.cell:nth-child(1), .cell:nth-child(2), .cell:nth-child(3) { border-top: none; }
+.cell:nth-child(7), .cell:nth-child(8), .cell:nth-child(9) { border-bottom: none; }
+.cell:nth-child(1), .cell:nth-child(4), .cell:nth-child(7) { border-left: none; }
+.cell:nth-child(3), .cell:nth-child(6), .cell:nth-child(9) { border-right: none; }
+
+.cell:hover {
+    background-color: #e0e0e0;
+}
+
+#play-again-btn {
+    margin-top: 20px;
+    font-size: 1.2rem;
+}
