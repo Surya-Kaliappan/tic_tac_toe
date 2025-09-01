@@ -67,13 +67,7 @@ function showEndGameModal(message, isHostDisconnected = false) {
     elements.gameResultText.innerHTML = message;
     elements.finalBoardClone.innerHTML = elements.gameBoard.innerHTML;
     elements.gameBoard.style.display = 'none';
-
-    if (isHostDisconnected) {
-        elements.playAgainBtn.style.display = 'none';
-    } else {
-        elements.playAgainBtn.style.display = 'block';
-    }
-
+    elements.playAgainBtn.style.display = isHostDisconnected ? 'none' : 'block';
     elements.endGameModalOverlay.classList.remove('hidden');
 }
 
@@ -111,4 +105,21 @@ function highlightWinningCells(combination) {
 
 function showOpponentReady() {
     elements.gameResultText.innerHTML += "<br><span class='opponent-ready-text'>Opponent is ready!</span>";
+}
+
+function forceEndGame(message) {
+    if (!elements.endGameModalOverlay.classList.contains('hidden')) {
+        showEndGameModal(message, true);
+    } else {
+        endGame(message, [], true);
+    }
+}
+
+// ===== NEW FUNCTION =====
+function showError(message) {
+    alert(message); // Using a simple alert for errors
+    // Reset the lobby button
+    elements.startGameBtn.textContent = 'Start Game';
+    elements.startGameBtn.disabled = false;
+    elements.roomCodeInput.readOnly = false;
 }
