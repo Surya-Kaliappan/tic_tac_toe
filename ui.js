@@ -88,14 +88,14 @@ function hideEndGameModal() {
 function showConfirmationModal(message) {
     elements.confirmModalText.textContent = message;
     elements.confirmModalOverlay.classList.remove('hidden');
-    
+
     elements.confirmNoBtn.addEventListener('click', () => {
-        elements.confirmModalOverlay.classList.add('hidden')
-    });
+        elements.confirmModalOverlay.classList.add('hidden');
+    }, { once: true });
     elements.confirmYesBtn.addEventListener('click', () => {
         elements.confirmModalOverlay.classList.add('hidden');
-        quitGame();
-    });
+        quitGame(); // This executes the function passed from app.js (like quitGame)
+    }, { once: true });
 }
 
 // Rest the Info Popup Setting
@@ -117,7 +117,7 @@ function highlightWinningCells(combination) {
 }
 
 function showOpponentReady() {
-    alert(`${opponentName}, Requested Another Game..`);
+    elements.gameResultText.innerHTML += `<br><br><span class='opponent-ready-text'>${opponentName} is ready to play!</span>`;
 }
 
 function forceEndGame(message) {

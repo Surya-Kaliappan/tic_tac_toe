@@ -1,4 +1,4 @@
-// Core Application Logic
+// --- Core Application Logic ---
 
 let peer;
 let conn;
@@ -12,6 +12,7 @@ let amIHost = false;
 let opponentName = '';
 let gameIsOver = false;
 let connectionTimeout;
+let gameStarted = false; 
 
 const winningCombinations = [
     [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -70,6 +71,7 @@ function quitGame() {
         mySymbol = '';
         myTurn = false;
         gameIsOver = false;
+        gameStarted = false; 
         resetUI();
         renderBoard(boardState, null);
         showScreen('lobby');
@@ -114,13 +116,19 @@ function createNewGame() {
     });
 
     peer.on('connection', (newConn) => {
+        if (conn && conn.open) {
+            newConn.on('open', () => {
+                newConn.send({ type: 'room-full' });
+                setTimeout(() => newConn.close(), 500);
+            });
+            return;
+        }
         conn = newConn;
         conn.on('open', () => {
             opponentName = conn.metadata.username;
             startNewGame(amIHost);
         });
         conn.on('data', handleData);
-        conn.on('close', () => endGame("Opponent has disconnected.", [], true));
     });
 
     peer.on('error', (err) => {
@@ -139,7 +147,7 @@ function joinGame(roomCode) {
 
         // Set a timeout for the connection
         connectionTimeout = setTimeout(() => {
-            if (!conn.open) {
+            if (!conn || !conn.open) {
                 showError("Could not connect to the host. Please check the Room ID and try again.");
                 if (peer) peer.destroy(); // Clean up the peer object
             }
@@ -147,10 +155,9 @@ function joinGame(roomCode) {
 
         conn.on('open', () => {
             clearTimeout(connectionTimeout); // Connection successful, clear the timeout
-            console.log("Connection open, waiting for host.");
         });
+
         conn.on('data', handleData);
-        conn.on('close', () => endGame("Opponent has disconnected.", [], true));
     });
 
     peer.on('error', (err) => {
@@ -161,6 +168,7 @@ function joinGame(roomCode) {
 
 // Game Initialize procedure
 function initializeGame(symbol, turn, oppName) {
+    gameStarted = true; // Set the flag that the game is now active
     mySymbol = symbol;
     myTurn = turn;
     opponentName = oppName;
@@ -182,7 +190,7 @@ function handleCellClick(index) {
     renderBoard(boardState, handleCellClick);
     conn.send({ type: 'move', index: index, symbol: mySymbol });
     myTurn = false;
-    checkGameOver();
+    checkGameOver();  
     if (!gameIsOver) {
         updateStatus();
     }
@@ -195,7 +203,11 @@ function handleData(data) {
             if (!amIHost) { startNewGame(amIHost); }
             initializeGame(data.symbol, data.startTurn, data.opponentName);
             break;
-        case 'move':   // track the game
+        case 'room-full':
+            showError("This room is already full.");
+            quitGame();
+            break;
+        case 'move':
             boardState[data.index] = data.symbol;
             renderBoard(boardState, handleCellClick);
             myTurn = true;
