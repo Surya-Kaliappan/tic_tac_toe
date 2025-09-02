@@ -96,7 +96,16 @@ function createNewGame() {
     const shortCode = generateId(6);
     peer = new Peer(shortCode);
 
+    // Set time for getting Room ID
+    connectionTimeout = setTimeout(() => {
+        if (!peer.open) {
+            showError("Could not connect to the server. Please check your internet connection and try again.");
+            if (peer) peer.destroy();
+        }
+    }, 10000);  // wait 10s for getting the response from Peerjs
+
     peer.on('open', (id) => {
+        clearTimeout(connectionTimeout);
         elements.roomCodeInput.value = id;
         elements.roomCodeInput.readOnly = true;
         elements.startGameBtn.textContent = 'Waiting for opponent...';
@@ -115,6 +124,7 @@ function createNewGame() {
     });
 
     peer.on('error', (err) => {
+        clearTimeout(connectionTimeout);
         showError(`An error occurred: ${err.type}. Please try again.`);
     });
 }
@@ -133,7 +143,7 @@ function joinGame(roomCode) {
                 showError("Could not connect to the host. Please check the Room ID and try again.");
                 if (peer) peer.destroy(); // Clean up the peer object
             }
-        }, 15000); // wait for 15 seconds to connection success
+        }, 10000); // wait for 10 seconds to connection success
 
         conn.on('open', () => {
             clearTimeout(connectionTimeout); // Connection successful, clear the timeout
@@ -156,7 +166,7 @@ function initializeGame(symbol, turn, oppName) {
     opponentName = oppName;
 
     updatePlayerInfo(
-        { name: myUsername, symbol: mySymbol },
+        { name: 'You', symbol: mySymbol },
         { name: opponentName, symbol: mySymbol === 'X' ? 'O' : 'X' }
     );
     

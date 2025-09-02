@@ -133,4 +133,5 @@ function showError(message) {
     elements.startGameBtn.textContent = 'Start Game';
     elements.startGameBtn.disabled = false;
     elements.roomCodeInput.readOnly = false;
+    elements.terminateSearchBtn.style.display = 'none';
 }
