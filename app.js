@@ -1,4 +1,4 @@
-// --- Core Application Logic ---
+// Core Application Logic
 
 let peer;
 let conn;
@@ -25,12 +25,11 @@ document.getElementById('enter-lobby-btn').onclick = () => {
         elements.welcomeUsername.textContent = myUsername;
         showScreen('lobby');
     } else {
-        alert('Please enter a name!');
+        alert('Please enter a Name!');
     }
 };
 
 elements.startGameBtn.onclick = () => {
-    // Immediate feedback when the button is clicked
     elements.startGameBtn.textContent = 'Connecting...';
     elements.startGameBtn.disabled = true;
 
@@ -40,6 +39,10 @@ elements.startGameBtn.onclick = () => {
     } else {
         createNewGame();
     }
+};
+
+elements.terminateSearchBtn.onclick = () => {
+    quitGame();
 };
 
 elements.playAgainBtn.onclick = () => {
@@ -52,6 +55,7 @@ elements.playAgainBtn.onclick = () => {
     }
 };
 
+// quitting the connection
 function quitGame() {
     if (conn && conn.open) {
         conn.send({ type: 'quit' });
@@ -74,17 +78,19 @@ function quitGame() {
         elements.startGameBtn.textContent = 'Start Game';
         elements.startGameBtn.disabled = false;
         elements.roomIdDisplay.textContent = '';
-    }, 100);
+        elements.terminateSearchBtn.style.display = 'none';
+    }, 200);  // set 0.2s for setup to maintain delay
 }
 
 elements.leaveGameBtn.onclick = () => {
-    showConfirmationModal("Are you sure you want to leave?", quitGame);
+    showConfirmationModal("Are you sure you want to leave?");
 };
 
 elements.quitBtn.onclick = () => {
-    showConfirmationModal("Are you sure you want to quit?", quitGame);
+    showConfirmationModal("Are you sure you want to quit?");
 };
 
+// Setting Parameter in Peer connection
 function createNewGame() {
     amIHost = true;
     const shortCode = generateId(6);
@@ -94,6 +100,7 @@ function createNewGame() {
         elements.roomCodeInput.value = id;
         elements.roomCodeInput.readOnly = true;
         elements.startGameBtn.textContent = 'Waiting for opponent...';
+        elements.terminateSearchBtn.style.display = 'inline-block';
         elements.roomIdDisplay.textContent = `Room ID: ${id}`;
     });
 
@@ -126,7 +133,7 @@ function joinGame(roomCode) {
                 showError("Could not connect to the host. Please check the Room ID and try again.");
                 if (peer) peer.destroy(); // Clean up the peer object
             }
-        }, 15000); // 15 seconds
+        }, 15000); // wait for 15 seconds to connection success
 
         conn.on('open', () => {
             clearTimeout(connectionTimeout); // Connection successful, clear the timeout
@@ -142,6 +149,7 @@ function joinGame(roomCode) {
     });
 }
 
+// Game Initialize procedure
 function initializeGame(symbol, turn, oppName) {
     mySymbol = symbol;
     myTurn = turn;
@@ -157,6 +165,7 @@ function initializeGame(symbol, turn, oppName) {
     updateStatus();
 }
 
+// Cell control
 function handleCellClick(index) {
     if (!myTurn || boardState[index] !== '' || gameIsOver) return;
     boardState[index] = mySymbol;
@@ -169,20 +178,21 @@ function handleCellClick(index) {
     }
 }
 
+// Game Events
 function handleData(data) {
     switch (data.type) {
-        case 'start':
+        case 'start':  // Start the game
             if (!amIHost) { startNewGame(amIHost); }
             initializeGame(data.symbol, data.startTurn, data.opponentName);
             break;
-        case 'move':
+        case 'move':   // track the game
             boardState[data.index] = data.symbol;
             renderBoard(boardState, handleCellClick);
             myTurn = true;
-            checkGameOver();
+            checkGameOver();  
             if (!gameIsOver) { updateStatus(); }
             break;
-        case 'play-again':
+        case 'play-again': 
             opponentWantsToPlayAgain = true;
             if (iWantToPlayAgain) {
                 if (amIHost) {
@@ -195,16 +205,18 @@ function handleData(data) {
             startNewGame(amIHost);
             break;
         case 'quit':
-            forceEndGame("Opponent has left the game.");
+            forceEndGame(`${opponentName} has left the game.`);
             break;
     }
 }
 
+// updating player turn
 function updateStatus() {
     if (gameIsOver) return;
     updateTurnIndicator(myTurn);
 }
 
+// check the cell combinations
 function checkGameOver() {
     if (gameIsOver) return true;
     for (const combination of winningCombinations) {
@@ -215,12 +227,13 @@ function checkGameOver() {
         }
     }
     if (!boardState.includes('')) {
-        endGame("It's a Draw!");
+        endGame("It's a Tie!");
         return true;
     }
     return false;
 }
 
+// End Game Procedure
 function endGame(message, combination = [], isDisconnect = false) {
     if (gameIsOver) return;
     gameIsOver = true;
@@ -234,6 +247,7 @@ function endGame(message, combination = [], isDisconnect = false) {
     renderBoard(boardState, null);
 }
 
+// New Game Procedures
 function startNewGame(isHost) {
     gameIsOver = false;
     boardState = ['', '', '', '', '', '', '', '', ''];
@@ -255,6 +269,7 @@ function startNewGame(isHost) {
     }
 }
 
+// Six Character Code
 function generateId(length) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';

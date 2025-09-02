@@ -1,11 +1,13 @@
-// --- All functions that manipulate the DOM ---
+// All functions that would manipulate the DOM 
 
+// List of Screens
 const screens = {
     name: document.getElementById('name-screen'),
     lobby: document.getElementById('lobby-screen'),
     game: document.getElementById('game-screen'),
 };
 
+// Element Control
 const elements = {
     usernameInput: document.getElementById('username-input'),
     welcomeUsername: document.getElementById('welcome-username'),
@@ -30,13 +32,16 @@ const elements = {
     confirmNoBtn: document.getElementById('confirm-no-btn'),
     finalBoardClone: document.getElementById('final-board-clone'),
     gameStatus: document.getElementById('game-status'),
+    terminateSearchBtn: document.getElementById('terminate-search-btn'),
 };
 
+// Screen Control
 function showScreen(screenName) {
     Object.values(screens).forEach(screen => screen.classList.remove('active'));
     screens[screenName].classList.add('active');
 }
 
+// Update Players Data
 function updatePlayerInfo(myData, opponentData) {
     elements.myName.textContent = myData.name;
     elements.mySymbol.textContent = myData.symbol;
@@ -44,11 +49,13 @@ function updatePlayerInfo(myData, opponentData) {
     elements.opponentSymbol.textContent = opponentData.symbol;
 }
 
+// Player's Turn Indication
 function updateTurnIndicator(isMyTurn) {
     elements.playerMe.classList.toggle('active-turn', isMyTurn);
     elements.playerOpponent.classList.toggle('active-turn', !isMyTurn);
 }
 
+// Board Control
 function renderBoard(boardState, clickHandler) {
     elements.gameBoard.innerHTML = '';
     boardState.forEach((symbol, index) => {
@@ -63,6 +70,7 @@ function renderBoard(boardState, clickHandler) {
     });
 }
 
+// Info Popup Setting
 function showEndGameModal(message, isHostDisconnected = false) {
     elements.gameResultText.innerHTML = message;
     elements.finalBoardClone.innerHTML = elements.gameBoard.innerHTML;
@@ -76,17 +84,21 @@ function hideEndGameModal() {
     elements.endGameModalOverlay.classList.add('hidden');
 }
 
-function showConfirmationModal(message, onConfirm) {
+// Quit Popup Setting
+function showConfirmationModal(message) {
     elements.confirmModalText.textContent = message;
     elements.confirmModalOverlay.classList.remove('hidden');
     
-    elements.confirmNoBtn.addEventListener('click', () => elements.confirmModalOverlay.classList.add('hidden'), { once: true });
+    elements.confirmNoBtn.addEventListener('click', () => {
+        elements.confirmModalOverlay.classList.add('hidden')
+    });
     elements.confirmYesBtn.addEventListener('click', () => {
         elements.confirmModalOverlay.classList.add('hidden');
-        onConfirm();
-    }, { once: true });
+        quitGame();
+    });
 }
 
+// Rest the Info Popup Setting
 function resetUI() {
     hideEndGameModal();
     elements.finalBoardClone.innerHTML = '';
@@ -94,6 +106,7 @@ function resetUI() {
     elements.playAgainBtn.textContent = 'Play Again';
 }
 
+// Glowing the Cells
 function highlightWinningCells(combination) {
     combination.forEach(index => {
         elements.gameBoard.children[index].classList.add('winning-cell');
@@ -104,7 +117,7 @@ function highlightWinningCells(combination) {
 }
 
 function showOpponentReady() {
-    elements.gameResultText.innerHTML += "<br><span class='opponent-ready-text'>Opponent is ready!</span>";
+    alert(`${opponentName}, Requested Another Game..`);
 }
 
 function forceEndGame(message) {
@@ -115,10 +128,8 @@ function forceEndGame(message) {
     }
 }
 
-// ===== NEW FUNCTION =====
 function showError(message) {
-    alert(message); // Using a simple alert for errors
-    // Reset the lobby button
+    alert(message); 
     elements.startGameBtn.textContent = 'Start Game';
     elements.startGameBtn.disabled = false;
     elements.roomCodeInput.readOnly = false;

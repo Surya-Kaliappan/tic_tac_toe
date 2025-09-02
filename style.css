@@ -118,8 +118,12 @@ button:hover:not(:disabled) {
     padding: 7px 12px 
 }
 
-.btn-leave:hover {
+.btn-leave:hover, .btn-terminate {
     background-color: var(--red-leave-hover) !important;
+}
+
+.btn-terminate {
+    background-color: var(--red-leave);
 }
 
 .game-arena {
@@ -293,7 +297,7 @@ button:hover:not(:disabled) {
     line-height: 1;
 }
 
-/* ===== MOBILE OPTIMIZATION ===== */
+/* Mobile View */
 @media (max-width: 768px) {
     .game-arena {
         justify-content: space-around;

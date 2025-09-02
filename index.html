@@ -9,6 +9,7 @@
 </head>
 <body>
 
+    <!-- Hero Section -->
     <div id="name-screen" class="screen active">
         <div class="content-container">
             <h1>Tic-Tac-Toe</h1>
@@ -17,15 +18,19 @@
         </div>
     </div>
 
+    <!-- Lobby Sectin -->
     <div id="lobby-screen" class="screen">
         <div class="content-container">
             <h1>Hello, <span id="welcome-username"></span>!</h1>
+            <br>
             <input type="text" id="room-code-input" placeholder="Enter Room Code to Join">
             <button id="start-game-btn">Start Game</button>
-            <h2>Leave the box empty to create a new room.</h2>
+            <button id="terminate-search-btn" class="btn-terminate" style="display: none;">Terminate</button>
+            <h2><br>Leave the box empty to create a new room.</h2>
         </div>
     </div>
 
+    <!-- Game Section -->
     <div id="game-screen" class="screen">
         <div id="room-id-display"></div>
         <button id="leave-game-btn" class="btn-leave">Leave</button>
@@ -42,6 +47,7 @@
         </div>
     </div>
 
+    <!-- Info Popup -->
     <div id="end-game-modal-overlay" class="modal-overlay hidden">
         <div class="end-game-container">
             <div id="final-board-clone"></div>
@@ -55,6 +61,7 @@
         </div>
     </div>
 
+    <!-- Quit Popup -->
     <div id="confirm-modal-overlay" class="modal-overlay hidden">
         <div class="modal-content">
             <h2 id="confirm-modal-text">Are you sure?</h2>
